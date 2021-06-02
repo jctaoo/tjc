@@ -1,0 +1,24 @@
+{
+  "name": "typescript-project-starter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jctaoo/typescript-project-starter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jctaoo/typescript-project-starter/issues"
+  },
+  "homepage": "https://github.com/jctaoo/typescript-project-starter#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "inquirer": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^7.3.1",
+    "@types/prompt": "^1.1.0"
+  }
+}
