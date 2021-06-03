@@ -3,7 +3,7 @@ const { getAllLicenses } = require("./githubApi");
 const { gitUsername } = require("./readGitConfig");
 
 async function main() {
-  await inquirer.prompt([
+  const answers = await inquirer.prompt([
     {
       name: "name",
       validate(input) {
@@ -70,7 +70,7 @@ async function main() {
     {
       type: "input",
       name: "author",
-      message: "👩🏼‍💻 作者的大名",
+      message: "👩 作者的大名",
       default() {
         const done = this.async();
         gitUsername().then((name) => {
@@ -88,7 +88,42 @@ async function main() {
         return true;
       },
     },
+    {
+      name: "useMonorepo",
+      type: "confirm",
+      message: "🌲 要使用 monorepo (lerna) 来管理项目吗",
+    },
+    {
+      name: "type",
+      type: "list",
+      message: "⚙️  是 Application 还是 Library",
+      choices: ["Application", "Library"],
+    },
+    {
+      name: "env",
+      type: "list",
+      message: "⚙️  是浏览器还是 Node.js",
+      choices: ["浏览器", "Node.js"],
+    },
+    {
+      name: "useTest",
+      type: "confirm",
+      message: "🔧 要启用单元测试(jest)吗?",
+    },
+    {
+      name: "useE2e",
+      type: "confirm",
+      message: "🔧 要启用 e2e 测试(jest)吗?",
+      when: (questions) => questions.useTest,
+    },
+    {
+      name: "usTs",
+      type: "confirm",
+      message: "🏎️  要使用 TypeScript 吗",
+    },
   ]);
+
+  console.log(answers);
 }
 
 main().then();
