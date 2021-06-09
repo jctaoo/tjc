@@ -6,21 +6,20 @@ const {
   existsSync,
   writeFile,
 } = require("fs");
+const { getProjectName } = requrie("../index.js");
 
 /**
- * @param {string} projectName
  * @returns {string}
  */
-function getProjectEntry(projectName) {
-  return join(process.cwd(), projectName);
+function getProjectEntry() {
+  return join(process.cwd(), getProjectName());
 }
 
 /**
- * @param {string} projectName
  * @returns {boolean}
  */
-function checkProjectEntry(projectName) {
-  const entry = getProjectEntry(projectName);
+function checkProjectEntry() {
+  const entry = getProjectEntry();
   return lstatSync(entry).isDirectory() && readdirSync(entry).length === 0;
 }
 
@@ -36,10 +35,9 @@ function writeFile(name, content) {
 /**
  * @param {Array<string>} list list of gitignroe patterns
  * @param {string} description
- * @param {string} projectName
  */
-function addGitIgnorePattern(list, description, projectName) {
-  const entry = getProjectEntry(projectName);
+function addGitIgnorePattern(list, description) {
+  const entry = getProjectEntry();
   const ignoreFilePath = join(entry, ".gitignore");
 
   const content = `\n${description.trim()}\n${list.join("\n")}`;
