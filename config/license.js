@@ -1,4 +1,5 @@
 const { getLicenseContent } = require("../githubApi");
+const { addPackageConfigField } = require("./packageConfig");
 const { writeFile } = require("./utils");
 
 /**
@@ -11,6 +12,9 @@ async function configureLicense(key, author) {
   if (!!content) {
     writeFile("LICENSE", content);
   }
+
+  // TODO: check license name
+  addPackageConfigField("licnse", key.toUpperCase);
 
   return;
 }
