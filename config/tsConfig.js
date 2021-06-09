@@ -1,3 +1,5 @@
+// TODO: inject useful comments for tsconfig
+
 const baseCompilerOptions = {
   incremental: true,
   rootDir: ".",
@@ -87,86 +89,115 @@ function getMonoTypeScriptConfig(target, module) {
   };
 }
 
+/**
+ * ### example
+ * ```
+ *  "target": "es2017",
+ *  "module": "commonjs",
+ * ```
+ *
+ * @param {string} target
+ * @param {string} module
+ */
+function getModuleTypeScriptConfig() {
+  return {
+    extends: "./tsconfig.json",
+    compilerOptions: {
+      target: "esnext",
+      outDir: "build/module",
+      module: "esnext",
+    },
+    exclude: ["node_modules/**"],
+  };
+}
+
 function configureLib(config, outDir, declaration) {
-  const { baseCompilerOptions } = config;
-  if (!typeof baseCompilerOptions === "object") {
+  const { compilerOptions } = config;
+  if (!typeof compilerOptions === "object") {
     return;
   }
   return {
     ...config,
-    baseCompilerOptions: {
-      ...baseCompilerOptions,
+    compilerOptions: {
+      ...compilerOptions,
       outDir,
       declaration: !!declaration,
+      declarationDir: "./types",
     },
   };
 }
 
 function configureBrowser(config) {
-  const { baseCompilerOptions } = config;
-  if (!typeof baseCompilerOptions === "object") {
+  const { compilerOptions } = config;
+  if (!typeof compilerOptions === "object") {
     return;
   }
   /** @type array */
-  const oldLib = baseCompilerOptions.lib ?? [];
+  const oldLib = compilerOptions.lib ?? [];
   const lib = [...oldLib, "DOM", "DOM.Iterable"];
   return {
     ...config,
-    baseCompilerOptions: {
-      ...baseCompilerOptions,
+    compilerOptions: {
+      ...compilerOptions,
       types: new Set(lib).values,
     },
   };
 }
 
 function configureNodejs(config) {
-  const { baseCompilerOptions } = config;
-  if (!typeof baseCompilerOptions === "object") {
+  const { compilerOptions } = config;
+  if (!typeof compilerOptions === "object") {
     return;
   }
   /** @type array */
-  const oldTypes = baseCompilerOptions.lib ?? [];
+  const oldTypes = compilerOptions.lib ?? [];
   const types = [...oldTypes, "node"];
   return {
     ...config,
-    baseCompilerOptions: {
-      ...baseCompilerOptions,
+    compilerOptions: {
+      ...compilerOptions,
       types: new Set(types).values,
     },
   };
 }
 
 function configureJest(config) {
-  const { baseCompilerOptions } = config;
-  if (!typeof baseCompilerOptions === "object") {
+  const { compilerOptions } = config;
+  if (!typeof compilerOptions === "object") {
     return;
   }
   /** @type array */
-  const oldTypes = baseCompilerOptions.lib ?? [];
+  const oldTypes = compilerOptions.lib ?? [];
   const types = [...oldTypes, "jest"];
   return {
     ...config,
-    baseCompilerOptions: {
-      ...baseCompilerOptions,
+    compilerOptions: {
+      ...compilerOptions,
       types: new Set(types).values,
     },
   };
 }
 
-function configureMonorepo(config) {
-  if (!typeof config === "object") {
+function configureRollup(config) {
+  const { compilerOptions } = config;
+  if (!typeof compilerOptions === "object") {
     return;
   }
   return {
     ...config,
-    include: undefined,
+    compilerOptions: {
+      ...compilerOptions,
+      incremental: undefined,
+      module: undefined,
+    },
   };
 }
 
-exports.getBaseTypeScriptConfig = getBaseTypeScriptConfig;
-exports.getMonoTypeScriptConfig = getMonoTypeScriptConfig;
-exports.configureLib = configureLib;
-exports.configureBrowser = configureBrowser;
-exports.configureJest = configureJest;
-exports.configureMonorepo = configureMonorepo;
-exports.configureNodejs = configureNodejs;
+module.exports.getBaseTypeScriptConfig = getBaseTypeScriptConfig;
+module.exports.getMonoTypeScriptConfig = getMonoTypeScriptConfig;
+module.exports.getModuleTypeScriptConfig = getModuleTypeScriptConfig;
+module.exports.configureLib = configureLib;
+module.exports.configureBrowser = configureBrowser;
+module.exports.configureJest = configureJest;
+module.exports.configureNodejs = configureNodejs;
+module.exports.configureRollup = configureRollup;
