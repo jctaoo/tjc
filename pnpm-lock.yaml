@@ -5,10 +5,12 @@ specifiers:
   '@types/prompt': ^1.1.0
   axios: ^0.21.1
   inquirer: ^8.1.0
+  lodash.camelcase: ^4.3.0
 
 dependencies:
   axios: 0.21.1
   inquirer: 8.1.0
+  lodash.camelcase: 4.3.0
 
 devDependencies:
   '@types/inquirer': 7.3.1
@@ -229,6 +231,10 @@ packages:
   /is-unicode-supported/0.1.0:
     resolution: {integrity: sha512-knxG2q4UC3u8stRGyAVJCOdxFmv5DZiRcdlIaAQXAbSfJya+OhopNotLQrstBhququ4ZpuKbDc/8S6mgXgPFPw==}
     engines: {node: '>=10'}
+    dev: false
+
+  /lodash.camelcase/4.3.0:
+    resolution: {integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=}
     dev: false
 
   /lodash/4.17.21:

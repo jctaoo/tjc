@@ -15,7 +15,8 @@
   "homepage": "https://github.com/jctaoo/typescript-project-starter#readme",
   "dependencies": {
     "axios": "^0.21.1",
-    "inquirer": "^8.1.0"
+    "inquirer": "^8.1.0",
+    "lodash.camelcase": "^4.3.0"
   },
   "devDependencies": {
     "@types/inquirer": "^7.3.1",

@@ -1,7 +1,8 @@
+const camelCase = require("lodash.camelcase");
 const { installDependency } = require("./packageConfig");
 const { writeFile } = require("./utils");
 
-const baseRollupConfig = (isBrowser, outDir) =>
+const baseRollupConfig = (isBrowser, outDir, libraryName) =>
 `
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
@@ -17,7 +18,7 @@ const config = {
         ? `
       {
         file: "${outDir}/main.umd.js",
-        name: camelCase("testLibrary"),
+        name: ${camelCase(libraryName)},
         format: "umd",
         sourcemap: true,
       },
@@ -33,13 +34,12 @@ const config = {
 export default config;
 `.trim();
 
-const typeScriptBaseRollupConfig = (isBrowser, declaration, outDir) =>
+const typeScriptBaseRollupConfig = (isBrowser, declaration, outDir, libraryName) =>
   `
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import sourcemap from "rollup-plugin-sourcemaps";
 import json from "@rollup/plugin-json";
-import camelCase from "lodash.camelcase";
 import typescript from "@rollup/plugin-typescript";
 
 /** @type {import('rollup').RollupOptions} */
@@ -51,7 +51,7 @@ const config = {
         ? `
       {
         file: "${outDir}/main.umd.js",
-        name: camelCase("testLibrary"),
+        name: ${camelCase(libraryName)},
         format: "umd",
         sourcemap: true,
       },
@@ -80,8 +80,9 @@ export default config;
  * @param {boolean} isBrowser
  * @param {string} outDir
  * @param {boolean} declaration
+ * @param {string} libraryName
  */
-function configureRollup(useTypeScript, isBrowser, outDir, declaration) {
+function configureRollup(useTypeScript, isBrowser, outDir, declaration, libraryName) {
   installDependency("rollup", true);
   installDependency("@rollup/plugin-commonjs", true);
   installDependency("@rollup/plugin-json", true);
@@ -89,8 +90,8 @@ function configureRollup(useTypeScript, isBrowser, outDir, declaration) {
   installDependency("rollup-plugin-sourcemaps", true);
 
   const rollupConfig = useTypeScript
-    ? baseRollupConfig(isBrowser, outDir)
-    : typeScriptBaseRollupConfig(isBrowser, declaration, outDir);
+    ? baseRollupConfig(isBrowser, outDir, libraryName)
+    : typeScriptBaseRollupConfig(isBrowser, declaration, outDir, libraryName);
 
   writeFile("rollup.config.js", JSON.stringify(rollupConfig));
 

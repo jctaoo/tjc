@@ -55,12 +55,14 @@ const ScriptLanguage = {
  * @param {ScriptLanguage} scriptLanguage
  * @param {{ target: string, module: string }} scriptConfigOptions
  * @param {configureScriptConfig} configureScriptConfig
+ * @param {string} libraryName
  */
 function configureBuild(
   buildType,
   scriptLanguage,
   scriptConfigOptions,
-  configureScriptConfig
+  configureScriptConfig,
+  libraryName,
 ) {
   const useTypeScript = scriptLanguage === ScriptLanguage.TYPE_SCRIPT;
 
@@ -104,7 +106,7 @@ function configureBuild(
 
   if (buildType === ScriptBuildType.ROLLUP) {
     // TODO: outDir may be undefined
-    configureRollup(useTypeScript, isBrowser, outDir, useTypeScript);
+    configureRollup(useTypeScript, isBrowser, outDir, useTypeScript, libraryName);
     // assuming main is ${outdir}/main.js (commonjs)
     addPackageConfigField("main", join(outDir, "main.js"));
     addPackageConfigField("module", join(outDir, "module.js"));
