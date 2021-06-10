@@ -6,6 +6,8 @@ const {
   existsSync,
   writeFile,
 } = require("fs");
+// TODO:
+// TODO: use this https://github.com/toptal/gitignore
 const { getProjectName } = requrie("../index.js");
 
 /**
