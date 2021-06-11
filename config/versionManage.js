@@ -1,4 +1,4 @@
-const { installDependency, addScript } = require("../packageConfig");
+const { installDependency, addScript } = require("./packageConfig");
 
 function configureVersionManage() {
   // TODO: show tip for first release
