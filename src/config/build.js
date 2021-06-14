@@ -1,3 +1,5 @@
+const {ScriptBuildType} = require("../enums");
+const {ScriptLanguage} = require("../enums");
 const {
   installDependency,
   addScript,
@@ -15,22 +17,6 @@ const {
 } = require("./tsConfig");
 const { writeFile } = require("./utils");
 const { join } = require("path");
-
-/**
- * @enum {Symbol}
- */
-const ScriptBuildType = {
-  ROLLUP: Symbol("rollup"),
-  TSC: Symbol("TSC"),
-};
-
-/**
- * @enum {Symbol}
- */
-const ScriptLanguage = {
-  TYPE_SCRIPT: Symbol("typescript"),
-  JAVA_SCRIPT: Symbol("javascript"),
-};
 
 /**
  * @callback configureLibFunc
@@ -161,5 +147,3 @@ function configureBuild(
 }
 
 module.exports.configureBuild = configureBuild;
-module.exports.ScriptBuildType = ScriptBuildType;
-module.exports.ScriptLanguage = ScriptLanguage;

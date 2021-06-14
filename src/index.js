@@ -3,6 +3,9 @@ const { getAllLicenses } = require("./githubApi");
 const { gitUsername, gitUserEmail } = require("./readGitConfig");
 const fs = require("fs");
 const path = require("path");
+const {ScriptLanguage} = require("./enums");
+const {ScriptBuildType} = require("./enums");
+const {FrontEndFramework} = require("./enums");
 const { createDirectory } = require("./config/utils");
 const { configureJest } = require("./config/jest");
 const { configureReadme } = require("./config/readme");
@@ -19,8 +22,6 @@ const { configureBrowserList } = require("./config/browserlist");
 const { commitWorks } = require("./config/packageConfig");
 const {
   configureBuild,
-  ScriptBuildType,
-  ScriptLanguage,
 } = require("./config/build");
 
 // ## Todolist: Setup new project.
@@ -31,6 +32,12 @@ const {
 // TODO: rolllup question
 // TODO: ci
 // TODO: Jest
+// TODO: jsx vue compoennt
+// TODO: post css
+// TODO: 支持前端组件库
+// TODO：测试模版
+// TODO: e2e
+// TODO: ssr
 
 async function main() {
   // const answers = await inquirer.prompt([
@@ -236,7 +243,7 @@ async function main() {
     useMonorepo: false,
     type: "Library",
     outDir: "./dist",
-    env: "Node.js",
+    env: "浏览器",
     useTest: true,
     useE2e: true,
     useTs: true,
@@ -248,6 +255,7 @@ async function main() {
     usePrettier: true,
     useVersionManager: true,
     useLint: true,
+    frontendFramework: FrontEndFramework.REACT
   };
 
   ConfigCenter.shard.projectName = answers.name;
@@ -327,7 +335,7 @@ async function main() {
         testCode
       );
     }
-    configureJest(useTypeScript);
+    configureJest(useTypeScript, useBrowser, answers.frontendFramework);
     await writeTestTemplate("test")
     if (answers.useE2e) {
       await writeTestTemplate("e2e")
