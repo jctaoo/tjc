@@ -7,6 +7,7 @@ const {
   existsSync,
   writeFileSync: fsWriteFileSync,
 } = require("fs");
+const fs = require("fs");
 
 // TODO:
 // TODO: use this https://github.com/toptal/gitignore
@@ -33,6 +34,15 @@ function checkProjectEntry() {
 function writeFile(name, content) {
   const path = join(getProjectEntry(), name);
   return fsWriteFileSync(path, content, {});
+}
+
+/**
+ * @param {string} name
+ */
+async function createDirectory(name) {
+  if (!existsSync(join(getProjectEntry(), name))) {
+    await fs.promises.mkdir(join(getProjectEntry(), name));
+  }
 }
 
 /**
@@ -63,6 +73,7 @@ function validEmailString(raw) {
 }
 
 module.exports.getProjectEntry = getProjectEntry;
+module.exports.createDirectory = createDirectory;
 module.exports.writeFile = writeFile;
 module.exports.addGitIgnorePattern = addGitIgnorePattern;
 module.exports.checkProjectEntry = checkProjectEntry;

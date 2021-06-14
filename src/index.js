@@ -1,8 +1,10 @@
-const inquirer = require("inquirer")
+const inquirer = require("inquirer");
 const { getAllLicenses } = require("./githubApi");
 const { gitUsername, gitUserEmail } = require("./readGitConfig");
 const fs = require("fs");
 const path = require("path");
+const { createDirectory } = require("./config/utils");
+const { configureJest } = require("./config/jest");
 const { configureReadme } = require("./config/readme");
 const { configureESLint } = require("./config/eslint");
 const { getTemplateCode } = require("./getTemplateCode");
@@ -28,194 +30,225 @@ const {
 // # TODO: prettier json
 // TODO: rolllup question
 // TODO: ci
+// TODO: Jest
 
 async function main() {
-  const answers = await inquirer.prompt([
-    {
-      name: "name",
-      validate(input) {
-        const isValid = /^[a-zA-Z\-\_\w]+$/.test(input);
-        if (!isValid) {
-          return "请输入仅包含 a-z，A-Z, 0-9, 中划线和下划线的项目名";
-        }
-        return isValid;
-      },
-      type: "input",
-      message: "📦 给新项目起个名字",
-    },
-    {
-      name: "description",
-      type: "input",
-      message: "💬 简短介绍你的项目",
-    },
-    {
-      name: "gitRepositoryUrl",
-      type: "input",
-      message: "🚛 Git 仓库地址",
-      validate(input) {
-        const isValid =
-          /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*/.test(
-            input
-          );
-        if (!isValid) {
-          return "请填写合法的 URL";
-        }
-        return isValid;
-      },
-    },
-    {
-      name: "isOpensource",
-      type: "confirm",
-      message: "🍺 是开源项目吗",
-    },
-    {
-      type: "list",
-      name: "license",
-      message: "📖 要使用什么开源协议?",
-      ...(() => {
-        const allLicenses = getAllLicenses("mit");
-        return {
-          choices() {
-            const done = this.async();
-            allLicenses.then(({ data }) => {
-              done(null, Array.from(data.keys()));
-            });
-          },
-          default() {
-            const done = this.async();
-            allLicenses.then(({ defaultName }) => {
-              done(null, defaultName);
-            });
-          },
-          filter(input) {
-            const done = this.async();
-            allLicenses.then(({ data }) => {
-              done(null, data.get(input));
-            });
-          },
-        };
-      })(),
-      loop: true,
-      when(questions) {
-        return questions.isOpensource;
-      },
-    },
-    {
-      type: "input",
-      name: "author",
-      message: "👩 作者的大名",
-      default() {
-        const done = this.async();
-        gitUsername().then((name) => {
-          if (name) {
-            done(null, name);
-          } else {
-            done(null, undefined);
-          }
-        });
-      },
-      validate(input, questions) {
-        if (questions.license && !input) {
-          return "由于要填充 license，你必须填写 author 字段";
-        }
-        return true;
-      },
-    },
-    {
-      type: "input",
-      name: "email",
-      message: "📮 作者的邮箱",
-      default() {
-        const done = this.async();
-        gitUserEmail().then((email) => {
-          if (email) {
-            done(null, email);
-          } else {
-            done(null, undefined);
-          }
-        });
-      },
-      validate(input) {
-        if (!!input) {
-          return validEmailString(input);
-        }
-        return true;
-      },
-    },
-    {
-      name: "useMonorepo",
-      type: "confirm",
-      message: "🌲 要使用 monorepo (lerna) 来管理项目吗",
-    },
-    {
-      name: "type",
-      type: "list",
-      message: "⚙️ 是 Application 还是 Library",
-      choices: ["Application", "Library"],
-    },
-    {
-      name: "outDir",
-      type: "input",
-      message: "🚥 你的 Library 的输出路径是 ?",
-      default: "./dist",
-      when(questions) {
-        return questions.type === "Library";
-      },
-    },
-    {
-      name: "env",
-      type: "list",
-      message: "⚙️ 是浏览器还是 Node.js",
-      choices: ["浏览器", "Node.js"],
-    },
-    {
-      name: "useTest",
-      type: "confirm",
-      message: "🔧 要启用单元测试(jest)吗?",
-    },
-    {
-      name: "useE2e",
-      type: "confirm",
-      message: "🔧 要启用 e2e 测试(jest)吗?",
-      when: (questions) => questions.useTest,
-    },
-    {
-      name: "usTs",
-      type: "confirm",
-      message: "🏎️ 要使用 TypeScript 吗",
-    },
+  // const answers = await inquirer.prompt([
+  //   {
+  //     name: "name",
+  //     validate(input) {
+  //       const isValid = /^[a-zA-Z\-\_\w]+$/.test(input);
+  //       if (!isValid) {
+  //         return "请输入仅包含 a-z，A-Z, 0-9, 中划线和下划线的项目名";
+  //       }
+  //       return isValid;
+  //     },
+  //     type: "input",
+  //     message: "📦 给新项目起个名字",
+  //   },
+  //   {
+  //     name: "description",
+  //     type: "input",
+  //     message: "💬 简短介绍你的项目",
+  //   },
+  //   {
+  //     name: "gitRepositoryUrl",
+  //     type: "input",
+  //     message: "🚛 Git 仓库地址",
+  //     validate(input) {
+  //       const isValid =
+  //         /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}\b[-a-zA-Z0-9@:%_\+.~#?&//=]*/.test(
+  //           input
+  //         );
+  //       if (!isValid) {
+  //         return "请填写合法的 URL";
+  //       }
+  //       return isValid;
+  //     },
+  //   },
+  //   {
+  //     name: "isOpensource",
+  //     type: "confirm",
+  //     message: "🍺 是开源项目吗",
+  //   },
+  //   {
+  //     type: "list",
+  //     name: "license",
+  //     message: "📖 要使用什么开源协议?",
+  //     ...(() => {
+  //       const allLicenses = getAllLicenses("mit");
+  //       return {
+  //         choices() {
+  //           const done = this.async();
+  //           allLicenses.then(({ data }) => {
+  //             done(null, Array.from(data.keys()));
+  //           });
+  //         },
+  //         default() {
+  //           const done = this.async();
+  //           allLicenses.then(({ defaultName }) => {
+  //             done(null, defaultName);
+  //           });
+  //         },
+  //         filter(input) {
+  //           const done = this.async();
+  //           allLicenses.then(({ data }) => {
+  //             done(null, data.get(input));
+  //           });
+  //         },
+  //       };
+  //     })(),
+  //     loop: true,
+  //     when(questions) {
+  //       return questions.isOpensource;
+  //     },
+  //   },
+  //   {
+  //     type: "input",
+  //     name: "author",
+  //     message: "👩 作者的大名",
+  //     default() {
+  //       const done = this.async();
+  //       gitUsername().then((name) => {
+  //         if (name) {
+  //           done(null, name);
+  //         } else {
+  //           done(null, undefined);
+  //         }
+  //       });
+  //     },
+  //     validate(input, questions) {
+  //       if (questions.license && !input) {
+  //         return "由于要填充 license，你必须填写 author 字段";
+  //       }
+  //       return true;
+  //     },
+  //   },
+  //   {
+  //     type: "input",
+  //     name: "email",
+  //     message: "📮 作者的邮箱",
+  //     default() {
+  //       const done = this.async();
+  //       gitUserEmail().then((email) => {
+  //         if (email) {
+  //           done(null, email);
+  //         } else {
+  //           done(null, undefined);
+  //         }
+  //       });
+  //     },
+  //     validate(input) {
+  //       if (!!input) {
+  //         return validEmailString(input);
+  //       }
+  //       return true;
+  //     },
+  //   },
+  //   {
+  //     name: "useMonorepo",
+  //     type: "confirm",
+  //     message: "🌲 要使用 monorepo (lerna) 来管理项目吗",
+  //   },
+  //   {
+  //     name: "type",
+  //     type: "list",
+  //     message: "⚙️ 是 Application 还是 Library",
+  //     choices: ["Application", "Library"],
+  //   },
+  //   {
+  //     name: "outDir",
+  //     type: "input",
+  //     message: "🚥 你的 Library 的输出路径是 ?",
+  //     default: "./dist",
+  //     when(questions) {
+  //       return questions.type === "Library";
+  //     },
+  //   },
+  //   {
+  //     name: "env",
+  //     type: "list",
+  //     message: "⚙️ 是浏览器还是 Node.js",
+  //     choices: ["浏览器", "Node.js"],
+  //   },
+  //   {
+  //     name: "useTest",
+  //     type: "confirm",
+  //     message: "🔧 要启用单元测试(jest)吗?",
+  //   },
+  //   {
+  //     name: "useE2e",
+  //     type: "confirm",
+  //     message: "🔧 要启用 e2e 测试(jest)吗?",
+  //     when: (questions) => questions.useTest,
+  //   },
+  //   {
+  //     name: "usTs",
+  //     type: "confirm",
+  //     message: "🏎️ 要使用 TypeScript 吗",
+  //   },
+  //   {
+  //     message: "🎁 要使用的包管理工具",
+  //     name: "packageUtil",
+  //     type: "list",
+  //     choices: ["npm", "pnpm", "yarn", "cnpm"],
+  //   },
+  //   {
+  //     message: "⚙️ 要是用 EditorConfig 吗?",
+  //     name: "useEditorConfig",
+  //     type: "confirm",
+  //   },
+  //   {
+  //     message: "🏷️ 选择你喜欢的缩紧空格数",
+  //     name: "indent",
+  //     type: "list",
+  //     choices: [2, 4, 8],
+  //     when: (questions) => questions.name,
+  //   },
+  //   { message: "🪝 要使用 GitHook 吗?", name: "useGitHook", type: "confirm" },
+  //   {
+  //     message: "🌈 要是用 prettier 来美化代码吗?",
+  //     name: "usePrettier",
+  //     type: "confirm",
+  //   },
+  //   {
+  //     message: "📰 要是用版本管理工具吗?",
+  //     name: "useVersionManager",
+  //     type: "confirm",
+  //   },
+  //   { message: "👀 要是用 ESLint 吗?", name: "useLint", type: "confirm" },
+  // ]);
 
-    {
-      message: "🎁 要使用的包管理工具",
-      name: "packageUtil",
-      type: "list",
-      choices: ["npm", "pnpm", "yarn", "cnpm"],
+  const answers = {
+    name: "quick-cmd",
+    description: "A quick and typesafe command parser library for nodejs.",
+    gitRepositoryUrl: "https://github.com/jctaoo/quick-cmd",
+    isOpensource: true,
+    license: {
+      key: "mit",
+      name: "MIT License",
+      spdx_id: "MIT",
+      url: "https://api.github.com/licenses/mit",
+      node_id: "MDc6TGljZW5zZTEz",
     },
-    {
-      message: "⚙️ 要是用 EditorConfig 吗?",
-      name: "useEditorConfig",
-      type: "confirm",
-    },
-    {
-      message: "🏷️ 选择你喜欢的缩紧空格数",
-      name: "indent",
-      type: "list",
-      choices: [2, 4, 8],
-      when: (questions) => questions.name
-    },
-    { message: "🪝 要使用 GitHook 吗?", name: "useGitHook", type: "confirm" },
-    {
-      message: "🌈 要是用 prettier 来美化代码吗?",
-      name: "usePrettier",
-      type: "confirm",
-    },
-    {
-      message: "📰 要是用版本管理工具吗?",
-      name: "useVersionManager",
-      type: "confirm",
-    },
-    { message: "👀 要是用 ESLint 吗?", name: "useLint", type: "confirm" },
-  ]);
+    author: "jctaoo",
+    email: "jctaoo@outlook.com",
+    useMonorepo: false,
+    type: "Library",
+    outDir: "./dist",
+    env: "Node.js",
+    useTest: true,
+    useE2e: true,
+    useTs: true,
+    buildUtil: "tsc",
+    packageUtil: "pnpm",
+    indent: 2,
+    useEditorConfig: true,
+    useGitHook: true,
+    usePrettier: true,
+    useVersionManager: true,
+    useLint: true,
+  };
 
   ConfigCenter.shard.projectName = answers.name;
   ConfigCenter.shard.indent = answers.indent;
@@ -231,11 +264,10 @@ async function main() {
   const useNodejs = answers.env === "Node.js";
   const useTypeScript = answers.useTs;
   const isLibrary = answers.type === "Library";
+  const useRollup = answers.buildUtil === 'rollup';
 
   // write source code
-  if (!fs.existsSync(path.join(getProjectEntry(), "src"))) {
-    await fs.promises.mkdir(path.join(getProjectEntry(), "src"));
-  }
+  await createDirectory("src");
   const code = await getTemplateCode(
     useNodejs ? "node" : "browser",
     isLibrary ? "lib" : "app",
@@ -248,7 +280,7 @@ async function main() {
   );
 
   configureBuild(
-    ScriptBuildType.ROLLUP,
+    useRollup ? ScriptBuildType.ROLLUP : ScriptBuildType.TSC,
     useTypeScript ? ScriptLanguage.TYPE_SCRIPT : ScriptLanguage.JAVA_SCRIPT,
     {
       target: "es2020",
@@ -258,8 +290,9 @@ async function main() {
       config,
       { configureBrowser, configureJest, configureLib, configureNodejs }
     ) => {
+      if (answers.useTest) configureJest();
       if (useBrowser) configureBrowser();
-      if (isLibrary) configureLib(answers.outDir);
+      if (isLibrary) configureLib(answers.outDir, true);
       if (useNodejs) configureNodejs();
     },
     answers.outDir,
@@ -278,6 +311,27 @@ async function main() {
   if (answers.useGitHook) {
     // TODO
     configureGitHook("echo HH");
+  }
+
+  if (answers.useTest) {
+    async function writeTestTemplate(directory) {
+      await createDirectory(directory);
+      const testCode = await getTemplateCode(
+        useNodejs ? "node" : "browser",
+        "test",
+        useTypeScript ? "ts" : "js"
+      );
+      const testCodeFileName = `index.test.${useTypeScript ? "ts" : "js"}`;
+      await fs.promises.writeFile(
+        path.join(getProjectEntry(), directory, testCodeFileName),
+        testCode
+      );
+    }
+    configureJest(useTypeScript);
+    await writeTestTemplate("test")
+    if (answers.useE2e) {
+      await writeTestTemplate("e2e")
+    }
   }
 
   if (answers.useLint) {
