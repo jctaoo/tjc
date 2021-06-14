@@ -1,3 +1,5 @@
+<img src="lbxx.png" height="200" width="200" style="border-radius:50%">
+
 # ts/js Project Starter
 
 ## Features
