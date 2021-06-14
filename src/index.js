@@ -26,6 +26,8 @@ const {
 //
 // # TODO: bin in package.json
 // # TODO: prettier json
+// TODO: rolllup question
+// TODO: ci
 
 async function main() {
   const answers = await inquirer.prompt([
