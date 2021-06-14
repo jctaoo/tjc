@@ -38,6 +38,8 @@ const {
 // TODO：测试模版
 // TODO: e2e
 // TODO: ssr
+// TODO: path alias
+// TODO: wasm
 
 async function main() {
   // const answers = await inquirer.prompt([
@@ -255,7 +257,7 @@ async function main() {
     usePrettier: true,
     useVersionManager: true,
     useLint: true,
-    frontendFramework: FrontEndFramework.REACT
+    frontendFramework: FrontEndFramework.VUE3
   };
 
   ConfigCenter.shard.projectName = answers.name;
@@ -347,7 +349,8 @@ async function main() {
       useBrowser,
       useTypeScript,
       [answers.outDir],
-      answers.usePrettier
+      answers.usePrettier,
+      answers.frontendFramework
     );
   }
 

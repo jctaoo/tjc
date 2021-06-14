@@ -1,5 +1,4 @@
-// TODO: USING TESING-LIBRARY
-
+const { FrontEndFramework } = require("../enums");
 const { installDependency, addScript } = require("./packageConfig");
 const { writeFile } = require("./utils");
 
@@ -94,17 +93,21 @@ const eslintConfigTS = {
   },
 };
 
+// TODO: Support jest env
+
 /**
  * @param {boolean} isBrowser
  * @param {boolean} isTypeScript
  * @param {Array<string>} ignorePatterns
  * @param {boolean} usingPrettier
+ * @param {FrontEndFramework} frontEndFramework
  */
 function getESLintConfig(
   isBrowser,
   isTypeScript,
   ignorePatterns,
-  usingPrettier
+  usingPrettier,
+  frontEndFramework
 ) {
   const config = isTypeScript ? eslintConfigTS : eslintConfig;
 
@@ -120,6 +123,37 @@ function getESLintConfig(
     }
   }
 
+  if (isBrowser) {
+    switch (frontEndFramework) {
+      case FrontEndFramework.REACT: {
+        config.extends.push("plugin:react/recommended");
+        break;
+      }
+      case FrontEndFramework.VUE2: {
+        config.extends = [
+          "plugin:vue/essential",
+          "eslint:recommended",
+          ...(isTypeScript ? ["@vue/typescript/recommended"] : []),
+          ...(usingPrettier
+            ? ["@vue/prettier", "@vue/prettier/@typescript-eslint"]
+            : []),
+        ];
+        break;
+      }
+      case FrontEndFramework.VUE3: {
+        config.extends = [
+          "plugin:vue/vue3-essential",
+          "eslint:recommended",
+          ...(isTypeScript ? ["@vue/typescript/recommended"] : []),
+          ...(usingPrettier
+            ? ["@vue/prettier", "@vue/prettier/@typescript-eslint"]
+            : []),
+        ];
+        break;
+      }
+    }
+  }
+
   return config;
 }
 
@@ -128,17 +162,40 @@ function getESLintConfig(
  * @param {boolean} isTypeScript
  * @param {Array<string>} ignorePatterns
  * @param {boolean} usingPrettier
+ * @param {FrontEndFramework} frontEndFramework
  */
 function configureESLint(
   isBrowser,
   isTypeScript,
   ignorePatterns,
-  usingPrettier
+  usingPrettier,
+  frontEndFramework
 ) {
   const config = getESLintConfig(...arguments);
   const content = JSON.stringify(config, null, 2);
 
+  if (isBrowser) {
+    switch (frontEndFramework) {
+      case FrontEndFramework.REACT: {
+        installDependency("eslint-plugin-react", true);
+        break;
+      }
+      case FrontEndFramework.VUE2:
+      case FrontEndFramework.VUE3: {
+        installDependency("eslint-plugin-vue", true);
+        if (usingPrettier) {
+          installDependency("@vue/eslint-config-prettier", true);
+        }
+        if (isTypeScript) {
+          installDependency("@vue/eslint-config-typescript", true);
+        }
+        break;
+      }
+    }
+  }
   installDependency("eslint", true);
+
+  // TODO: Support vue
   installDependency("eslint-plugin-eslint-comments", true);
   installDependency("eslint-plugin-import", true);
 
