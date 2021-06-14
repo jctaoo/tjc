@@ -108,7 +108,7 @@ function getESLintConfig(
 ) {
   const config = isTypeScript ? eslintConfigTS : eslintConfig;
 
-  config.env[isBrowser ? "brwoser" : "node"] = true;
+  config.env[isBrowser ? "browser" : "node"] = true;
   config.ignorePatterns = [
     ...new Set([...config.ignorePatterns, ...ignorePatterns]),
   ];
@@ -136,7 +136,7 @@ function configureESLint(
   usingPrettier
 ) {
   const config = getESLintConfig(...arguments);
-  const content = JSON.stringify(config);
+  const content = JSON.stringify(config, null, 2);
 
   installDependency("eslint", true);
   installDependency("eslint-plugin-eslint-comments", true);

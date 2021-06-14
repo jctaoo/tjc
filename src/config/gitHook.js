@@ -1,4 +1,5 @@
-const { addPackageConfigField } = requrie("./packageConfig.js");
+const {installDependency} = require("./packageConfig");
+const { addPackageConfigField } = require("./packageConfig.js");
 
 /**
  * @param {string} preCommitCommand

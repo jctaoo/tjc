@@ -89,16 +89,6 @@ function getMonoTypeScriptConfig(target, module) {
   };
 }
 
-/**
- * ### example
- * ```
- *  "target": "es2017",
- *  "module": "commonjs",
- * ```
- *
- * @param {string} target
- * @param {string} module
- */
 function getModuleTypeScriptConfig() {
   return {
     extends: "./tsconfig.json",
@@ -139,7 +129,7 @@ function configureBrowser(config) {
     ...config,
     compilerOptions: {
       ...compilerOptions,
-      types: new Set(lib).values,
+      lib: Array.from(new Set(lib).values()),
     },
   };
 }
@@ -150,13 +140,13 @@ function configureNodejs(config) {
     return;
   }
   /** @type array */
-  const oldTypes = compilerOptions.lib ?? [];
+  const oldTypes = compilerOptions.types ?? [];
   const types = [...oldTypes, "node"];
   return {
     ...config,
     compilerOptions: {
       ...compilerOptions,
-      types: new Set(types).values,
+      types: Array.from(new Set(types).values()),
     },
   };
 }
@@ -173,7 +163,7 @@ function configureJest(config) {
     ...config,
     compilerOptions: {
       ...compilerOptions,
-      types: new Set(types).values,
+      types: Array.from(new Set(types).values()),
     },
   };
 }

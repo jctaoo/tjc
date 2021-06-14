@@ -3,7 +3,7 @@ const { writeFile } = require("./utils");
 
 function getPrettierIgnoreContent() {
   return `# package.json is formatted by package managers, so we ignore it here
-  package.json`;
+package.json`;
 }
 
 /**

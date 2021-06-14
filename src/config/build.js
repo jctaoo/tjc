@@ -9,7 +9,6 @@ const {
   getBaseTypeScriptConfig,
   configureLib,
   configureJest,
-  configureMonorepo,
   configureBrowser,
   configureNodejs,
   getModuleTypeScriptConfig,
@@ -39,22 +38,26 @@ const ScriptLanguage = {
  * @param {boolean} declaration
  */
 /**
+ * @callback VoidFunc
+ */
+
+/**
  * @callback configureScriptConfig If call neither configureBrowser nor configureNodejs, the default options will be nodejs.
  * @param {Object} config tsconfig / jsconfig
  * @param {{
  *  configureLib: configureLibFunc,
- *  configureBrwoser: () => void,
- *  configureJest: () => void,
- *  configureMonorepo: () => void,
- *  configureNodejs: () => void,
+ *  configureBrowser: VoidFunc,
+ *  configureJest: VoidFunc,
+ *  configureNodejs: VoidFunc,
  * }} configureFunctions
- * @returns {Object} your script config
  */
 /**
  * @param {ScriptBuildType} buildType
  * @param {ScriptLanguage} scriptLanguage
  * @param {{ target: string, module: string }} scriptConfigOptions
  * @param {configureScriptConfig} configureScriptConfig
+ * @param {string} outDir
+ * @param {boolean} isMonoRepo
  * @param {string} libraryName
  */
 function configureBuild(
@@ -62,43 +65,68 @@ function configureBuild(
   scriptLanguage,
   scriptConfigOptions,
   configureScriptConfig,
-  libraryName,
+  outDir,
+  isMonoRepo,
+  libraryName
 ) {
   const useTypeScript = scriptLanguage === ScriptLanguage.TYPE_SCRIPT;
 
   // configure script config (tsconfig / jsconfig)
   const { module, target } = scriptConfigOptions;
-  const baseConfig = isMonorepo
+  const baseConfig = isMonoRepo
     ? getMonoTypeScriptConfig(target, module)
     : getBaseTypeScriptConfig(target, module);
   let configOutDir;
   let isBrowser = false;
   let isNode = false;
 
-  const userScriptConfig = configureScriptConfig(baseConfig, {
+  let tsConfig = baseConfig;
+
+  configureScriptConfig(baseConfig, {
     configureLib: (outDir, declaration) => {
       configOutDir = outDir;
-      configureLib(baseConfig, outDir, declaration);
+      tsConfig = configureLib(tsConfig, outDir, declaration);
     },
-    configureBrwoser: () => {
+    configureBrowser: () => {
       isBrowser = true;
-      configureBrowser.bind(null, baseConfig);
+      tsConfig = configureBrowser(tsConfig);
     },
     configureNodejs: () => {
       isNode = true;
-      configureNodejs.bind(null, baseConfig);
+      tsConfig = configureNodejs(tsConfig);
     },
-    configureJest: configureJest.bind(null, baseConfig),
-    configureMonorepo: configureMonorepo.bind(null, baseConfig),
+    configureJest: () => {
+      configureJest(baseConfig);
+    },
   });
-  const userScriptConfigContent = JSON.stringify(userScriptConfig);
+  const userScriptConfig = tsConfig;
+  const userScriptConfigContent = JSON.stringify(userScriptConfig, null, 2);
 
   if (useTypeScript) {
     installDependency("typescript", true);
-    writeFile("tsconfig.module.json", JSON.stringify(getModuleTypeScriptConfig()));
+
+    if (buildType === ScriptBuildType.TSC) {
+      writeFile(
+        "tsconfig.module.json",
+        JSON.stringify(getModuleTypeScriptConfig(), null, 2)
+      );
+    }
+
     writeFile("tsconfig.json", userScriptConfigContent);
   } else {
-    writeFile("jsconfig.json", userScriptConfigContent); // jsconfig is tsconfig. Just see ms's docs
+    const jsConfig = {
+      ...userScriptConfig,
+      compilerOptions: {
+        ...userScriptConfig.compilerOptions,
+        incremental: undefined,
+        traceResolution: undefined,
+        typeRoots: undefined,
+        types: undefined
+      }
+    };
+    const jsConfigContent = JSON.stringify(jsConfig, null, 2)
+    // jsconfig is tsconfig. Just see ms's docs
+    writeFile("jsconfig.json", jsConfigContent);
   }
 
   // configure build command
@@ -106,7 +134,13 @@ function configureBuild(
 
   if (buildType === ScriptBuildType.ROLLUP) {
     // TODO: outDir may be undefined
-    configureRollup(useTypeScript, isBrowser, outDir, useTypeScript, libraryName);
+    configureRollup(
+      useTypeScript,
+      isBrowser,
+      outDir,
+      useTypeScript,
+      libraryName
+    );
     // assuming main is ${outdir}/main.js (commonjs)
     addPackageConfigField("main", join(outDir, "main.js"));
     addPackageConfigField("module", join(outDir, "module.js"));
@@ -126,4 +160,6 @@ function configureBuild(
   }
 }
 
-module.exports.configureTypeScript = configureBuild;
+module.exports.configureBuild = configureBuild;
+module.exports.ScriptBuildType = ScriptBuildType;
+module.exports.ScriptLanguage = ScriptLanguage;

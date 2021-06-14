@@ -7,21 +7,38 @@ const github = axios.create({
   headers: { Accept: "application/vnd.github.v3+json" },
 });
 
+/**
+ * @param {string} defaultId
+ * @returns {Promise<{ 
+ *    data: Map<
+ *        string, 
+ *        {
+ *          key: string, 
+ *          name: string, 
+ *          spdx_id: string, 
+ *          url: string, 
+ *          node_id: string
+ *        }
+ *    >, 
+ *    defaultName: string 
+ * }>}
+ */
 async function getAllLicenses(defaultId) {
   const result = await github.get("/licenses");
-  let list = [];
+  let data;
   let defaultName;
 
   if (result.status === 200 && Array.isArray(result.data)) {
-    list = result.data.map((item) => item["name"]);
+    const entries = result.data.map((item) => [item.name, item]);
+    data = new Map(entries);
     if (defaultId) {
       defaultName = result.data.find((item) => item["key"] === defaultId)?.name;
     }
   }
-
+  
   return {
     defaultName,
-    list,
+    data,
   };
 }
 
@@ -48,5 +65,6 @@ async function getLicenseContent(key, author) {
   return;
 }
 
-
 module.exports = { getAllLicenses, getLicenseContent };
+
+getAllLicenses("mit")

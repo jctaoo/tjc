@@ -3,7 +3,7 @@ const { installDependency } = require("./packageConfig");
 const { writeFile } = require("./utils");
 
 const baseRollupConfig = (isBrowser, outDir, libraryName) =>
-`
+  `
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import sourcemap from "rollup-plugin-sourcemaps";
@@ -12,19 +12,17 @@ import json from "@rollup/plugin-json";
 /** @type {import('rollup').RollupOptions} */
 const config = {
   input: "./src/index.js",
-  output: [
-    ${
-      isBrowser
-        ? `
-      {
-        file: "${outDir}/main.umd.js",
-        name: ${camelCase(libraryName)},
-        format: "umd",
-        sourcemap: true,
-      },
-    `.trim()
-        : ""
-    }
+  output: [${
+    isBrowser
+      ? `
+    {
+      file: "${outDir}/main.umd.js",
+      name: ${camelCase(libraryName)},
+      format: "umd",
+      sourcemap: true,
+    },`
+      : ""
+  }
     { file: "${outDir}/main.js", exports: 'auto', format: "commonjs", sourcemap: true },
     { file: "${outDir}/module.js", format: 'esm', sourcemap: true },
   ],
@@ -34,7 +32,12 @@ const config = {
 export default config;
 `.trim();
 
-const typeScriptBaseRollupConfig = (isBrowser, declaration, outDir, libraryName) =>
+const typeScriptBaseRollupConfig = (
+  isBrowser,
+  declaration,
+  outDir,
+  libraryName
+) =>
   `
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
@@ -45,19 +48,17 @@ import typescript from "@rollup/plugin-typescript";
 /** @type {import('rollup').RollupOptions} */
 const config = {
   input: "./src/index.ts",
-  output: [
-    ${
-      isBrowser
-        ? `
+  output: [${
+    isBrowser
+      ? `
       {
         file: "${outDir}/main.umd.js",
         name: ${camelCase(libraryName)},
         format: "umd",
         sourcemap: true,
-      },
-    `.trim()
-        : ""
-    }
+    },`
+      : ""
+  }
     { file: "${outDir}/main.js", exports: 'auto', format: "commonjs", sourcemap: true },
     { file: "${outDir}/module.js", format: 'esm', sourcemap: true },
   ],
@@ -82,7 +83,13 @@ export default config;
  * @param {boolean} declaration
  * @param {string} libraryName
  */
-function configureRollup(useTypeScript, isBrowser, outDir, declaration, libraryName) {
+function configureRollup(
+  useTypeScript,
+  isBrowser,
+  outDir,
+  declaration,
+  libraryName
+) {
   installDependency("rollup", true);
   installDependency("@rollup/plugin-commonjs", true);
   installDependency("@rollup/plugin-json", true);
@@ -93,7 +100,7 @@ function configureRollup(useTypeScript, isBrowser, outDir, declaration, libraryN
     ? baseRollupConfig(isBrowser, outDir, libraryName)
     : typeScriptBaseRollupConfig(isBrowser, declaration, outDir, libraryName);
 
-  writeFile("rollup.config.js", JSON.stringify(rollupConfig));
+  writeFile("rollup.config.js", rollupConfig);
 
   installDependency("rollup", true);
   installDependency("rollup-plugin-sourcemaps", true);

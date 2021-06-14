@@ -1,7 +1,8 @@
 {
   "name": "typescript-project-starter",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
+  "bin": "bin/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jctaoo/typescript-project-starter.git"
@@ -13,13 +14,26 @@
     "url": "https://github.com/jctaoo/typescript-project-starter/issues"
   },
   "homepage": "https://github.com/jctaoo/typescript-project-starter#readme",
+  "scripts": {
+    "fix:prettier": "prettier ./src --write`",
+    "test:prettier": "prettier ./src --list-different"
+  },
   "dependencies": {
     "axios": "^0.21.1",
     "inquirer": "^8.1.0",
     "lodash.camelcase": "^4.3.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-typescript": "^8.2.1",
     "@types/inquirer": "^7.3.1",
-    "@types/prompt": "^1.1.0"
+    "@types/node": "^15.12.2",
+    "@types/prompt": "^1.1.0",
+    "prettier": "^2.3.1",
+    "rollup": "^2.51.2",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "typescript": "^4.3.2"
   }
 }

@@ -1,20 +1,21 @@
+const {ConfigCenter} = require("../configCenter");
 const { join } = require("path");
 const {
   lstatSync,
   readdirSync,
   appendFileSync,
   existsSync,
-  writeFile,
+  writeFileSync: fsWriteFileSync,
 } = require("fs");
+
 // TODO:
 // TODO: use this https://github.com/toptal/gitignore
-const { getProjectName } = requrie("../index.js");
 
 /**
  * @returns {string}
  */
 function getProjectEntry() {
-  return join(process.cwd(), getProjectName());
+  return join(process.cwd(), ConfigCenter.shard.projectName);
 }
 
 /**
@@ -31,7 +32,7 @@ function checkProjectEntry() {
  */
 function writeFile(name, content) {
   const path = join(getProjectEntry(), name);
-  return writeFile(path, content);
+  return fsWriteFileSync(path, content, {});
 }
 
 /**
@@ -51,7 +52,18 @@ function addGitIgnorePattern(list, description) {
   }
 }
 
+/**
+ * @param {string} raw
+ * @returns {boolean}
+ */
+function validEmailString(raw) {
+  const regex =
+    /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+  return regex.test(raw);
+}
+
 module.exports.getProjectEntry = getProjectEntry;
 module.exports.writeFile = writeFile;
 module.exports.addGitIgnorePattern = addGitIgnorePattern;
 module.exports.checkProjectEntry = checkProjectEntry;
+module.exports.validEmailString = validEmailString;

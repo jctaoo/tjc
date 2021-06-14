@@ -1,5 +1,5 @@
 const { spawn } = require("child_process");
-const { join } = require("path");
+const fs = require("fs");
 const { writeFile, getProjectEntry } = require("./utils");
 
 const dependencies = [];
@@ -45,7 +45,7 @@ function getBasePackageJson(
     version: "0.0.0",
     description: description,
     keywords: [],
-    author: `${author} <${email}?`,
+    author: `${author} <${email}>`,
     repository: {
       type: "git",
       url: gitRepositoryUrl,
@@ -60,15 +60,14 @@ function getBasePackageJson(
 
 /**
  * @param {string} command
+ * @param {Array<string>} args
  */
-async function runCommand(command) {
+async function runCommand(command, args) {
   return new Promise((resolve, reject) => {
-    const cp = spawn(installCmd);
-    cp.stderr.on("data", (data) => {
-      console.error(data.toString());
-    });
-    cp.stdout.on("data", (data) => {
-      console.log(data.toString());
+    const cp = spawn(command, args, {
+      cwd: getProjectEntry(),
+      shell: true,
+      stdio: "inherit",
     });
     cp.on("exit", function (code, signal) {
       console.log(
@@ -77,6 +76,35 @@ async function runCommand(command) {
       resolve();
     });
   });
+}
+
+/**
+ * @param {"npm" | "yarn" | "pnpm" | "cnpm"} packageUtil
+ * @return {Promise<void>}
+ */
+async function installAllDependencies(packageUtil) {
+  const installDependencies = dependencies
+    .filter((i) => !i.isDev)
+    .map((i) => i.name);
+  const installDevDependencies = dependencies
+    .filter((i) => i.isDev)
+    .map((i) => i.name);
+
+  const installSubCommand =
+    packageUtil === "yarn" || packageUtil === "pnpm" ? "add" : "install";
+  const installDevFlag =
+    packageUtil === "yarn" || packageUtil === "pnpm" ? "-D" : "--save-dev";
+
+  if (installDependencies.length > 0) {
+    await runCommand(packageUtil, [installSubCommand, ...installDependencies]);
+  }
+  if (installDevDependencies.length > 0) {
+    await runCommand(packageUtil, [
+      installSubCommand,
+      ...installDevDependencies,
+      installDevFlag,
+    ]);
+  }
 }
 
 /**
@@ -90,21 +118,6 @@ async function runCommand(command) {
  * }} options
  */
 async function commitWorks(packageUtil, options) {
-  const installDependencies = dependencies.filter((i) => !i.isDev).join(" ");
-  const installCmd =
-    packageUtil === "yarn" || packageUtil === "pnpm"
-      ? `${packageUtil} add ${installDependencies}`
-      : `${packageUtil} install ${installDependencies} --save`;
-
-  const installDevDependencies = dependencies.filter((i) => i.isDev).join(" ");
-  const installDevCmd =
-    packageUtil === "yarn" || packageUtil === "pnpm"
-      ? `${packageUtil} add ${installDevDependencies} -D`
-      : `${packageUtil} install ${installDevDependencies} --save-dev`;
-
-  if (!!installDependencies) await runCommand(installCmd);
-  if (!!installDevDependencies) await runCommand(installDevCmd);
-
   const packageConfig = getBasePackageJson(...Object.values(options));
   for (const item of packageConfigFields) {
     packageConfig[item.key] = item.config;
@@ -114,8 +127,9 @@ async function commitWorks(packageUtil, options) {
   }
 
   // TODO: Json prettier
-  const packageConfigPath = join(getProjectEntry(), "package.json");
-  writeFile(packageConfigPath, JSON.stringify(packageConfig));
+  writeFile("package.json", JSON.stringify(packageConfig, null, 2));
+
+  // await installAllDependencies(packageUtil);
 }
 
 module.exports.installDependency = installDependency;

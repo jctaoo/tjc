@@ -1,6 +1,10 @@
 const { writeFile } = require("./utils");
 
-const template = `
+/**
+ * @param {number} indent
+ * @return {string}
+ */
+const template = (indent) => `
 root = true
 
 [*]
@@ -10,14 +14,17 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 100
-indent_size = 2
+indent_size = ${indent}
 
 [*.md]
 trim_trailing_whitespace = false
 `.trim();
 
-function configureEditorConfig() {
-  writeFile(".editorconfig", template);
+/**
+ * @param {number} indent
+ */
+function configureEditorConfig(indent) {
+  writeFile(".editorconfig", template(indent));
 }
 
 module.exports.configureEditorConfig = configureEditorConfig;
