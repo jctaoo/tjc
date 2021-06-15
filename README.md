@@ -2,7 +2,7 @@
 
 ## Quick Start
 ```shell
-wget https://github.com/jctaoo/tjc/releases/download/v1.0.0/out.js | node
+wget https://github.com/jctaoo/tjc/releases/download/v1.0.0/out.js > tjc.js && node ./out.js
 ```
 
 ## Features
