@@ -1,5 +1,10 @@
 # ts/js Project Starter
 
+## Quick Start
+```shell
+wget https://github.com/jctaoo/tjc/releases/download/v1.0.0/out.js | node
+```
+
 ## Features
 - 📦 无需安装，一切开箱即用
 - 🌈 使用漂亮的交互式用户界面来配置你的项目
