@@ -134,7 +134,7 @@ function configureBuild(
       addPackageConfigField("typings", join(outDir, "types/src/index.d.ts"));
 
     addScript("build", "rollup -c rollup.config.js");
-    addScript("watch:build", "rollup -c rollup.config.js -w");
+    addScript("build:watch", "rollup -c rollup.config.js -w");
   } else if (useTypeScript && buildType === ScriptBuildType.TSC) {
     // assuming main is ${outdir}/main/src/index.js (commonjs)
     addPackageConfigField("main", join(outDir, "main/src/index.js"));
@@ -142,7 +142,7 @@ function configureBuild(
     addPackageConfigField("typings", join(outDir, "main/src/index.d.ts"));
 
     addScript("build", "tsc -p tsconfig.json");
-    addScript("watch:build", "tsc -p tsconfig.module.json -w");
+    addScript("build:watch", "tsc -p tsconfig.module.json -w");
   }
 }
 

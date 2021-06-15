@@ -129,7 +129,7 @@ async function commitWorks(packageUtil, options) {
   // TODO: Json prettier
   writeFile("package.json", JSON.stringify(packageConfig, null, 2));
 
-  // await installAllDependencies(packageUtil);
+  await installAllDependencies(packageUtil);
 }
 
 module.exports.installDependency = installDependency;

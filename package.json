@@ -1,11 +1,11 @@
 {
-  "name": "typescript-project-starter",
+  "name": "tjc",
   "version": "1.0.0",
   "main": "src/index.js",
   "bin": "bin/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jctaoo/typescript-project-starter.git"
+    "url": "git+https://github.com/jctaoo/tjc.git"
   },
   "keywords": [],
   "author": "",
