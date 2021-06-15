@@ -8,15 +8,16 @@
     "url": "git+https://github.com/jctaoo/tjc.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "jctaoo <taoo.jc@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jctaoo/typescript-project-starter/issues"
+    "url": "https://github.com/jctaoo/tjc/issues"
   },
-  "homepage": "https://github.com/jctaoo/typescript-project-starter#readme",
+  "homepage": "https://github.com/jctaoo/tjc#readme",
   "scripts": {
     "fix:prettier": "prettier ./src --write`",
-    "test:prettier": "prettier ./src --list-different"
+    "test:prettier": "prettier ./src --list-different",
+    "build": "esbuild ./src/index.js --bundle --platform=node --outfile=dist/out.js"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -31,6 +32,7 @@
     "@types/inquirer": "^7.3.1",
     "@types/node": "^15.12.2",
     "@types/prompt": "^1.1.0",
+    "esbuild": "^0.12.8",
     "prettier": "^2.3.1",
     "rollup": "^2.51.2",
     "rollup-plugin-sourcemaps": "^0.6.3",

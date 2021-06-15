@@ -9,6 +9,7 @@ specifiers:
   '@types/node': ^15.12.2
   '@types/prompt': ^1.1.0
   axios: ^0.21.1
+  esbuild: ^0.12.8
   inquirer: ^8.1.0
   lodash.camelcase: ^4.3.0
   prettier: ^2.3.1
@@ -29,6 +30,7 @@ devDependencies:
   '@types/inquirer': 7.3.1
   '@types/node': 15.12.2
   '@types/prompt': 1.1.0
+  esbuild: 0.12.8
   prettier: 2.3.1
   rollup: 2.51.2
   rollup-plugin-sourcemaps: 0.6.3_0092beb8efba53e1329cf7064a1da378
@@ -288,6 +290,12 @@ packages:
   /emoji-regex/8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
     dev: false
+
+  /esbuild/0.12.8:
+    resolution: {integrity: sha512-sx/LwlP/SWTGsd9G4RlOPrXnIihAJ2xwBUmzoqe2nWwbXORMQWtAGNJNYLBJJqa3e9PWvVzxdrtyFZJcr7D87g==}
+    hasBin: true
+    requiresBuild: true
+    dev: true
 
   /escape-string-regexp/1.0.5:
     resolution: {integrity: sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=}
