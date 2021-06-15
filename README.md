@@ -1,12 +1,9 @@
-<img src="lbxx.png" height="200" width="200" style="border-radius:50%">
-
 # ts/js Project Starter
 
 ## Features
 - 📦 无需安装，一切开箱即用
 - 🌈 使用漂亮的交互式用户界面来配置你的项目
 - 🔨 支持 ts/js 项目需要的几乎所有工具，包括 rollup，browserlist，editorconfig，prettier 等
-- 🚗 支持持续集成工具， GitHub Actions、TravisCI、CircleCI
 - 💬 问答式配置，而不是单纯的项目模版
 
 ## 支持的项目类型
