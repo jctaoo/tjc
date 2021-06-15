@@ -1,4 +1,4 @@
-# ts/js Project Starter
+# ts/js Project Creator & Configurer
 
 ## Quick Start
 ```shell
